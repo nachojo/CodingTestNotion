@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yhwon12 알고리즘 분석 & 추천</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 2.2em;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .difficulty-btn {
+      padding: 12px 24px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .difficulty-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .difficulty-btn.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .refresh-btn {
+      padding: 12px 30px;
+      background: #764ba2;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background: #5a3a7f;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+    }
+
+    .refresh-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .section {
+      margin-bottom: 35px;
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .weaknesses {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .weakness-tag {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1em;
+      box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+    }
+
+    .problems {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .problem-card {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 20px;
+      border-radius: 15px;
+      border-left: 5px solid #667eea;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .problem-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .problem-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .problem-id {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .problem-tier {
+      background: #667eea;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 12px;
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+
+    .problem-title {
+      font-size: 1.2em;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .problem-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: white;
+      color: #667eea;
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-size: 0.85em;
+      border: 1px solid #667eea;
+    }
+
+    .loading {
+      text-align: center;
+      color: #667eea;
+      font-size: 1.2em;
+      padding: 40px;
+    }
+
+    .error {
+      background: #ff6b6b;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 0.8em;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    .tier-bronze { background: #ad5600; color: white; }
+    .tier-silver { background: #435f7a; color: white; }
+    .tier-gold { background: #ec9a00; color: white; }
+    .tier-platinum { background: #27e2a4; color: white; }
+    .tier-diamond { background: #00b4fc; color: white; }
+    .tier-ruby { background: #ff0062; color: white; }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .problem-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 yhwon12 알고리즘 분석</h1>
+    <div class="subtitle">취약 유형 분석 및 맞춤 문제 추천</div>
+
+    <div class="controls">
+      <button class="difficulty-btn" data-difficulty="low">low</button>
+      <button class="difficulty-btn active" data-difficulty="mid">mid</button>
+      <button class="difficulty-btn" data-difficulty="high">high</button>
+      <button class="refresh-btn" id="refreshBtn"> 새로고침</button>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        분석 중...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentDifficulty = 'mid';
+    const userId = 'yhwon12';
+
+    // 난이도 버튼 클릭
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDifficulty = btn.dataset.difficulty;
+        loadAnalysis();
+      });
+    });
+
+    // 새로고침 버튼
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      loadAnalysis();
+    });
+
+    // Tier 숫자를 텍스트로 변환
+    function getTierText(tier) {
+      const tiers = {
+        1: '브론즈 V', 2: '브론즈 IV', 3: '브론즈 III', 4: '브론즈 II', 5: '브론즈 I',
+        6: '실버 V', 7: '실버 IV', 8: '실버 III', 9: '실버 II', 10: '실버 I',
+        11: '골드 V', 12: '골드 IV', 13: '골드 III', 14: '골드 II', 15: '골드 I',
+        16: '플래티넘 V', 17: '플래티넘 IV', 18: '플래티넘 III', 19: '플래티넘 II', 20: '플래티넘 I',
+        21: '다이아몬드 V', 22: '다이아몬드 IV', 23: '다이아몬드 III', 24: '다이아몬드 II', 25: '다이아몬드 I',
+        26: '루비 V', 27: '루비 IV', 28: '루비 III', 29: '루비 II', 30: '루비 I'
+      };
+      return tiers[tier] || `Tier ${tier}`;
+    }
+
+    function getTierClass(tier) {
+      if (tier <= 5) return 'tier-bronze';
+      if (tier <= 10) return 'tier-silver';
+      if (tier <= 15) return 'tier-gold';
+      if (tier <= 20) return 'tier-platinum';
+      if (tier <= 25) return 'tier-diamond';
+      return 'tier-ruby';
+    }
+
+    // 분석 데이터 로드
+    async function loadAnalysis() {
+      const contentDiv = document.getElementById('content');
+      const refreshBtn = document.getElementById('refreshBtn');
+      
+      refreshBtn.disabled = true;
+      contentDiv.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          AI가 분석 중입니다... (20초 정도 걸립니다)
+        </div>
+      `;
+
+      try {
+        const response = await fetch(`/api/analyze-and-recommend/${userId}?difficulty=${currentDifficulty}`);
+        
+        if (!response.ok) {
+          throw new Error('서버 오류');
+        }
+
+        const data = await response.json();
+        displayResults(data);
+      } catch (error) {
+        contentDiv.innerHTML = `
+          <div class="error">
+            ❌ 오류가 발생했습니다: ${error.message}
+          </div>
+        `;
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    }
+
+    // 결과 표시
+    function displayResults(data) {
+      const contentDiv = document.getElementById('content');
+      
+      const weaknessesHTML = data.weaknesses.map(w => 
+        `<div class="weakness-tag">${w}</div>`
+      ).join('');
+
+      const problemsHTML = data.recommended.map(p => `
+        <div class="problem-card" onclick="window.open('https://www.acmicpc.net/problem/${p.problemId}', '_blank')">
+          <div class="problem-header">
+            <div class="problem-id">#${p.problemId}</div>
+            <div class="problem-tier ${getTierClass(p.tier)}">${getTierText(p.tier)}</div>
+          </div>
+          <div class="problem-title">${p.title}</div>
+          <div class="problem-tags">
+            ${(p.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      contentDiv.innerHTML = `
+        <div class="section">
+          <div class="section-title">📊 취약 알고리즘 유형</div>
+          <div class="weaknesses">
+            ${weaknessesHTML}
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">💡 추천 문제 (클릭하면 이동)</div>
+          <div class="problems">
+            ${problemsHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    // 페이지 로드 시 자동 실행
+    loadAnalysis();
+  </script>
+</body>
+</html>

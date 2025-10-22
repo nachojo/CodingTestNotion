@@ -1,0 +1,9 @@
+# Node.js
+node_modules/
+npm-debug.log
+.env
+*.log
+.DS_Store
+# 빌드 결과물
+dist/
+build/
